@@ -22,7 +22,7 @@ A fun and interactive Hangman game built with pure HTML, CSS, and JavaScript. Th
 4. Click "Restart Game" to play again
 
 ## 📸 Screenshots
-(You can add screenshots here)
+![image](https://github.com/user-attachments/assets/19196940-8ea4-4bf3-9e78-89bedf9308f5)
 
 ## 📄 Report
 See /report/Hangman_Game_Report.docx for detailed documentation.

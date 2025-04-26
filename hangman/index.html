@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hangman Game</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, rgb(59, 76, 102), rgb(22, 2, 80));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      color: white;
+    }
+    h1 { text-shadow: 1px 1px 4px #000; }
+    #word-container {
+      font-size: 3rem;
+      letter-spacing: 1.5rem;
+      margin-bottom: 20px;
+    }
+    #letters-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .letter {
+      font-size: 2rem;
+      margin: 5px;
+      padding: 10px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 2px solid white;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .letter:hover {
+      transform: scale(1.1);
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+    #status {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    #guesses-left {
+      font-weight: bold;
+      font-size: 18px;
+      color: #ffc107;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background: white;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <h1>Hangman</h1>
+  <div id="word-container"></div>
+  <div id="letters-container"></div>
+  <div id="status">Start guessing the word!</div>
+  <div id="guesses-left">Guesses Left: <span id="guess-count">6</span></div>
+  <button id="reset">Restart Game</button>
+  <audio id="win-sound" src="https://www.soundjay.com/human/sounds/applause-8.mp3"></audio>
+  <audio id="lose-sound" src="https://www.soundjay.com/human/sounds/boo-01.mp3"></audio>
+  <script>
+    const lettersContainer = document.getElementById("letters-container");
+    const wordContainer = document.getElementById("word-container");
+    const statusText = document.getElementById("status");
+    const guessesLeftText = document.getElementById("guess-count");
+    const resetButton = document.getElementById("reset");
+    const winSound = document.getElementById("win-sound");
+    const loseSound = document.getElementById("lose-sound");
+
+    const words = ["javascript", "python", "hangman", "developer", "game"];
+    let selectedWord = "";
+    let guessedLetters = [];
+    let wrongGuesses = 0;
+
+    function generateWord() {
+      selectedWord = words[Math.floor(Math.random() * words.length)];
+      guessedLetters = Array(selectedWord.length).fill("_");
+      wrongGuesses = 0;
+      updateWordDisplay();
+      updateLetters();
+      updateStatus("Start guessing the word!");
+      updateGuessCount();
+    }
+
+    function updateWordDisplay() {
+      wordContainer.textContent = guessedLetters.join(" ");
+    }
+
+    function updateLetters() {
+      lettersContainer.innerHTML = "";
+      const alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
+      alphabet.forEach(letter => {
+        const letterButton = document.createElement("button");
+        letterButton.classList.add("letter");
+        letterButton.textContent = letter.toUpperCase();
+        letterButton.addEventListener("click", () => handleLetterClick(letter));
+        lettersContainer.appendChild(letterButton);
+      });
+    }
+
+    function handleLetterClick(letter) {
+      const buttons = document.querySelectorAll(".letter");
+      buttons.forEach(btn => {
+        if (btn.textContent.toLowerCase() === letter) {
+          btn.disabled = true;
+        }
+      });
+
+      if (selectedWord.includes(letter)) {
+        guessedLetters = guessedLetters.map((l, i) =>
+          selectedWord[i] === letter ? letter : l
+        );
+        updateWordDisplay();
+        if (guessedLetters.join("") === selectedWord) celebrateWin();
+      } else {
+        wrongGuesses++;
+        updateGuessCount();
+        if (wrongGuesses === 6) celebrateLoss();
+      }
+    }
+
+    function updateStatus(msg) {
+      statusText.textContent = msg;
+    }
+
+    function updateGuessCount() {
+      guessesLeftText.textContent = 6 - wrongGuesses;
+    }
+
+    function celebrateWin() {
+      updateStatus(`Congratulations! You've guessed the word: ${selectedWord}`);
+      winSound.play();
+      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    }
+
+    function celebrateLoss() {
+      updateStatus(`Game Over! The word was: ${selectedWord}`);
+      guessesLeftText.textContent = 0;
+      loseSound.play();
+    }
+
+    resetButton.addEventListener("click", generateWord);
+    generateWord();
+  </script>
+</body>
+</html>
